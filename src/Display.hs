@@ -13,33 +13,36 @@ import           Types
 -- a new line, or a representation for a game tile.
 data Feature = Blank
              | Newline
-             | Feature Tile
+             | Player
+             | Wall
+             | Goal
+             | Block
 
 -- | Convert a Coordinate in the World to a
 -- drawable Feature.
 coordToFeature :: Coord -> World -> Feature
 coordToFeature coord (World _ player lvl _)
-  | player == coord   = (Feature Player)
-  | isWall coord lvl  = (Feature Wall)
-  | isBlock coord lvl = (Feature Block) -- Priority over Goal.
-  | isGoal coord lvl  = (Feature Goal)
+  | player == coord   = Player
+  | isWall coord lvl  = Wall
+  | isBlock coord lvl = Block -- Priority over Goal.
+  | isGoal coord lvl  = Goal
   | otherwise         = Blank
 
 -- | Draw Feature using character glyph.
 drawFeature :: Feature -> IO ()
-drawFeature (Feature Player) = do
+drawFeature Player = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid Blue ]
   putChar '☺'
-drawFeature (Feature Wall) = do
+drawFeature Wall = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid Black ]
   putChar '█'
-drawFeature (Feature Block) = do
+drawFeature Block = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid Green ]
   putChar '⛃'
-drawFeature (Feature Goal) = do
+drawFeature Goal = do
   setSGR [ SetConsoleIntensity BoldIntensity
          , SetColor Foreground Vivid Red ]
   putChar '░'

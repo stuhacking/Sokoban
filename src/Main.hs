@@ -3,8 +3,6 @@
 module Main (main) where
 
 --------------------------------------------------
-import qualified Data.Map            as M
-import qualified Data.Set            as S
 import           Prelude             hiding (Either (..))
 import           System.Console.ANSI
 import           System.Environment

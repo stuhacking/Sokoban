@@ -2,7 +2,6 @@
 module Types where
 
 --------------------------------------------------
-import qualified Data.Map as M
 import qualified Data.Set as S
 import           Prelude  hiding (Either (..))
 
@@ -10,16 +9,12 @@ import           Coord
 --------------------------------------------------
 
 {- Environment -}
-data Tile = Wall
-          | Goal
-          | Block
-          | Player
-
 data Level = Level { lRank   :: Int
                    , lMoves  :: Int
                    , lStart  :: Coord
                    , lMax    :: Coord
-                   , lTiles  :: M.Map Coord Tile
+                   , lWalls  :: S.Set Coord
+                   , lGoals  :: S.Set Coord
                    , lBlocks :: S.Set Coord
                    }
 
@@ -54,7 +49,8 @@ emptyLevel = Level { lRank = 0
                    , lMoves = 0
                    , lStart = Coord 0 0
                    , lMax = Coord 0 0
-                   , lTiles = M.empty
+                   , lWalls = S.empty
+                   , lGoals = S.empty
                    , lBlocks = S.empty
                    }
 

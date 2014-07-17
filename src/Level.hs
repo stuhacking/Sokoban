@@ -7,14 +7,13 @@ module Level ( readLevel
              ) where
 
 --------------------------------------------------
-import qualified Data.Map as M
 import qualified Data.Set as S
 
 import           Coord
 import           Types
 --------------------------------------------------
 
--- | Read Level information from a file.
+-- | Read a Level from a file.
 readLevel :: String -> IO Level
 readLevel filename = do
   map <- readFile filename
@@ -45,24 +44,21 @@ strsToLevel str = foldl populate emptyLevel { lMax = maxXY } asciiMap
     maxXY = Coord maxX maxY
     populate lvl (coord, tile) =
       case tile of
-        '#' -> lvl { lTiles  = M.insert coord Wall         t}
-        '_' -> lvl { lTiles  = M.insert coord Goal         t}
-        'O' -> lvl { lBlocks = S.insert coord              b}
+        '#' -> lvl { lWalls  = S.insert coord w}
+        '_' -> lvl { lGoals  = S.insert coord g}
+        'O' -> lvl { lBlocks = S.insert coord b}
         '@' -> lvl { lStart  = coord }
         _ ->   lvl
         where
-          t = lTiles lvl
+          w = lWalls  lvl
+          g = lGoals  lvl
           b = lBlocks lvl
 
 -- | True if (x, y) is a Wall tile, else False.
-isWall coord lvl = case M.lookup coord (lTiles lvl) of
-  Just Wall -> True
-  _         -> False
+isWall coord lvl = S.member coord (lWalls lvl)
 
 -- | True if (x, y) is a Goal tile, else False.
-isGoal coord lvl = case M.lookup coord (lTiles lvl) of
-  Just Goal -> True
-  _         -> False
+isGoal coord lvl = S.member coord (lGoals lvl)
 
 -- | True if (x, y) is a Block tile, else False.
 isBlock coord lvl = S.member coord (lBlocks lvl)
@@ -73,12 +69,10 @@ isBlock coord lvl = S.member coord (lBlocks lvl)
   contain blocks.
 -}
 isComplete :: Level -> Bool
-isComplete lvl@(Level _ _ _ _ tiles blocks) =
-  all (`S.member` blocks) goals
-  where
-    coords = M.keys tiles
-    goals = filter (\x -> isGoal x lvl) coords
+isComplete (Level _ _ _ _ _ goals blocks) =
+  goals `S.isSubsetOf` blocks
 
+-- | Move Block from pos to newPos
 moveBlock :: Level -> Coord -> Coord -> Level
 moveBlock lvl pos newPos
   | S.member pos blocks = lvl { lBlocks = blocks' }
